@@ -143,9 +143,11 @@ int draw_menu(){
             case KEY_DOWN:
             case 'j':
                 highlight++;
-                highlight = (highlight > list_len -1) ? 0 : highlight;
+                highlight = (highlight > list_len - 1) ? 0 : highlight;
                 break;
             case 'q':
+                show_menu = false;
+                highlight = list_len - 1;
             case '\n':
                 show_menu = false;
             default:
