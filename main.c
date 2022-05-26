@@ -19,6 +19,41 @@ struct Board {
     char field[8][8];
 } board;
 
+
+void get_move();
+
+void clear_field();
+
+void update_field();
+
+void draw_board();
+
+void set_board();
+
+void gameloop();
+
+void init();
+
+int draw_menu();
+
+int main(int argc, char* argv[]){
+    init();
+    int choice = 2;
+    choice = draw_menu();
+    switch(choice){
+        case 0:
+            set_board();
+            gameloop();
+            break;
+        case 1:
+            break; 
+        case 2:
+            break;
+    }
+    endwin();
+    return 0;
+}
+
 void get_move(){
     char piece_input[20], move_input[20];
     printf("Enter piece you want to move: ");
@@ -166,25 +201,11 @@ int draw_menu(){
 }
 
 void gameloop(){
-    update_field();
-    draw_board();
-}
-
-
-int main(int argc, char* argv[]){
-    init();
-    int choice = 2;
-    choice = draw_menu();
-    switch(choice){
-        case 0:
-            set_board();
-            gameloop();
-            break;
-        case 1:
-            break; 
-        case 2:
-            break;
+    bool game_running = true;
+    while(game_running){
+        update_field();
+        draw_board();
     }
-    endwin();
-    return 0;
 }
+
+
