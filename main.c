@@ -97,52 +97,51 @@ void set_board(){
 }
 
 void menu(){
-    WINDOW *w;
-    int ch, i = 0;
+    int in_char, choice = 0; //
     char list[3][9] = {"New Game", "Settings", "Exit"};
     size_t list_len = ARRAYLEN(list);
     char item[9];
-    w = newwin(10, 14, 0, 0); // create a new window
-    //box(w, 0, 0); // sets default borders for the window
+    WINDOW *menuwin;
+    menuwin = newwin(10, 14, 0, 0); // create a new window
+    //box(menuwin, 0, 0); // sets default borders for the window
     // now print all the menu items and highlight the first one
-    for(i = 0; i < list_len; i++){
+    for(int i = 0; i < list_len; i++){
         if(i == 0) 
-            wattron(w, A_STANDOUT); // highlights the first item.
+            wattron(menuwin, A_STANDOUT); // highlights the first item.
         else
-            wattroff(w, A_STANDOUT);
+            wattroff(menuwin, A_STANDOUT);
         sprintf(item, "%-9s",  list[i]);
-        mvwprintw(w, i, 0, "%s", item);
+        mvwprintw(menuwin, i, 0, "%s", item);
     }
-    wrefresh(w); // update the terminal screen
-    i = 0;
+    wrefresh(menuwin); // update the terminal screen
     noecho(); // disable echoing of characters on the screen
-    keypad(w, TRUE); // enable keyboard input for the window.
+    keypad(menuwin, TRUE); // enable keyboard input for the window.
     curs_set(0); // hide the default screen cursor.
     // get the input
-    while((ch = wgetch(w)) != 'q'){ 
+    while((in_char = wgetch(menuwin)) != 'q'){ 
         // right pad with spaces to make the items appear with even width.
-        sprintf(item, "%-9s",  list[i]); 
-        mvwprintw(w, i, 0, "%s", item); 
+        sprintf(item, "%-9s",  list[choice]); 
+        mvwprintw(menuwin, choice, 0, "%s", item); 
         // use a variable to increment or decrement the value based on the input.
-        switch(ch) {
+        switch(in_char) {
             case KEY_UP:
             case 'k':
-                i--;
-                i = (i < 0) ? list_len - 1 : i;
+                choice--;
+                choice = (choice < 0) ? list_len - 1 : choice;
                 break;
             case KEY_DOWN:
             case 'j':
-                i++;
-                i = (i > list_len -1) ? 0 : i;
+                choice++;
+                choice = (choice > list_len -1) ? 0 : choice;
                 break;
         }
         // now highlight the next item in the list.
-        wattron(w, A_STANDOUT);
-        sprintf(item, "%-9s",  list[i]);
-        mvwprintw(w, i, 0, "%s", item);
-        wattroff(w, A_STANDOUT);
+        wattron(menuwin, A_STANDOUT);
+        sprintf(item, "%-9s",  list[choice]);
+        mvwprintw(menuwin, choice, 0, "%s", item);
+        wattroff(menuwin, A_STANDOUT);
     }
-    delwin( w );
+    delwin(menuwin);
 }
 
 
