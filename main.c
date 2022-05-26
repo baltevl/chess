@@ -108,10 +108,11 @@ int draw_menu(){
     size_t list_len = ARRAYLEN(list);
     char item[9];
     bool show_menu = true;
-
+    int y_max, x_max;
+    getmaxyx(stdscr, y_max, x_max);
 
     WINDOW *menuwin;
-    menuwin = newwin(10, 14, 0, 0); // create a new window
+    menuwin = newwin(y_max, x_max, 0, 0); // create a new window
     keypad(menuwin, true); // enable keyboard input for the window.
     curs_set(0); // hide the default screen cursor.
     wrefresh(menuwin); // update the terminal screen
