@@ -17,6 +17,8 @@ struct Piece{
 struct Board { 
     struct Piece pieces[32];
     char field[8][8];
+    int x_focus;
+    int y_focus;
 } board;
 
 
@@ -82,20 +84,23 @@ void update_field(){
 }
 
 
-void draw_board(){
-    printw("    A   B   C   D   E   F   G   H \n");
+void draw_board(WINDOW *boardwin){
+    mvwprintw(boardwin, 0, 0, "%s", "    A   B   C   D   E   F   G   H  ");
     for (int ranks_count = 0; ranks_count < 8; ranks_count++){
-        printw("  +---+---+---+---+---+---+---+---+\n");
-        printw("%d |", ranks_count+1);
+        mvwprintw(boardwin, ranks_count*2+1, 0, "%s", "  +---+---+---+---+---+---+---+---+");
+        mvwprintw(boardwin, ranks_count*2+2, 0, "%d |", ranks_count+1);
         for (int files_count = 0; files_count < 8; files_count++){
-            printw(" %c |", board.field[ranks_count][files_count]);
+            mvwprintw(boardwin, ranks_count*2+2, files_count*4 + 3, " ");
+            if(ranks_count == board.x_focus && files_count == board.y_focus)
+                wattron(boardwin, A_STANDOUT);
+            mvwprintw(boardwin, ranks_count*2+2, files_count*4 + 4, "%c", board.field[ranks_count][files_count]);
+            wattroff(boardwin, A_STANDOUT);
+            mvwprintw(boardwin, ranks_count*2+2, files_count*4 + 5, " |");
         }
-        printw("\n");
     }
-    printw("  +---+---+---+---+---+---+---+---+\n");
+    mvwprintw(boardwin, 17, 0, "  +---+---+---+---+---+---+---+---+");
     
-    refresh();
-    getch();
+    wgetch(boardwin);
 }
 
 void set_board(){
@@ -134,6 +139,8 @@ void set_board(){
 void init(){
     initscr();
     noecho(); // disable echoing of characters on the screen
+    curs_set(0); // hide the default screen cursor.
+    cbreak();
     
 }
 
@@ -141,7 +148,7 @@ int draw_menu(){
     int in_char, highlight = 0; 
     char list[3][9] = {"New Game", "Settings", "Exit"};
     size_t list_len = ARRAYLEN(list);
-    char item[9];
+    char buffer[9];
     bool show_menu = true;
     int y_max, x_max;
     getmaxyx(stdscr, y_max, x_max);
@@ -149,26 +156,23 @@ int draw_menu(){
     WINDOW *menuwin;
     menuwin = newwin(y_max, x_max, 0, 0); // create a new window
     keypad(menuwin, true); // enable keyboard input for the window.
-    curs_set(0); // hide the default screen cursor.
     wrefresh(menuwin); // update the terminal screen
     
-    //box(menuwin, 0, 0); // sets default borders for the window
     // now print all the menu items and highlight the first one
     for(int i = 0; i < list_len; i++){
         if(i == 0) 
             wattron(menuwin, A_STANDOUT); // highlights the first item.
-        else
-            wattroff(menuwin, A_STANDOUT);
-        sprintf(item, "%-9s",  list[i]);
-        mvwprintw(menuwin, i, 0, "%s", item);
+        sprintf(buffer, "%-9s",  list[i]);
+        mvwprintw(menuwin, i, 0, "%s", buffer);
+        wattroff(menuwin, A_STANDOUT);
     }
     while(show_menu){
 
         in_char = wgetch(menuwin); // get the input
 
         // right pad with spaces to make the items appear with even width.
-        sprintf(item, "%-9s",  list[highlight]); 
-        mvwprintw(menuwin, highlight, 0, "%s", item); 
+        sprintf(buffer, "%-9s",  list[highlight]); 
+        mvwprintw(menuwin, highlight, 0, "%s", buffer); 
 
         switch(in_char) {
             case KEY_UP:
@@ -192,8 +196,8 @@ int draw_menu(){
 
         // now highlight the next item in the list.
         wattron(menuwin, A_STANDOUT);
-        sprintf(item, "%-9s",  list[highlight]);
-        mvwprintw(menuwin, highlight, 0, "%s", item);
+        sprintf(buffer, "%-9s",  list[highlight]);
+        mvwprintw(menuwin, highlight, 0, "%s", buffer);
         wattroff(menuwin, A_STANDOUT);
     }
     delwin(menuwin);
@@ -202,10 +206,18 @@ int draw_menu(){
 
 void gameloop(){
     bool game_running = true;
+    int y_max, x_max;
+    board.x_focus, board.y_focus = 0;
+    getmaxyx(stdscr, y_max, x_max);
+    
+    WINDOW *boardwin;    
+    boardwin = newwin(y_max, x_max, 0, 0);
+    keypad(boardwin, true); // enable keyboard input for the window.
+    wrefresh(boardwin); // update the terminal screen
+
     while(game_running){
         update_field();
-        draw_board();
+        draw_board(boardwin);
     }
+    delwin(boardwin);
 }
-
-
