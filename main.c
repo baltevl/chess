@@ -47,7 +47,7 @@ void update_field(){
 }
 
 
-void print_board(){
+void draw_board(){
     printw("    A   B   C   D   E   F   G   H \n");
     for (int ranks_count = 0; ranks_count < 8; ranks_count++){
         printw("  +---+---+---+---+---+---+---+---+\n");
@@ -96,13 +96,26 @@ void set_board(){
     } 
 }
 
-void menu(){
-    int in_char, choice = 0; //
+void init(){
+    initscr();
+    noecho(); // disable echoing of characters on the screen
+    
+}
+
+int draw_menu(){
+    int in_char, highlight = 0; 
     char list[3][9] = {"New Game", "Settings", "Exit"};
     size_t list_len = ARRAYLEN(list);
     char item[9];
+    bool show_menu = true;
+
+
     WINDOW *menuwin;
     menuwin = newwin(10, 14, 0, 0); // create a new window
+    keypad(menuwin, true); // enable keyboard input for the window.
+    curs_set(0); // hide the default screen cursor.
+    wrefresh(menuwin); // update the terminal screen
+    
     //box(menuwin, 0, 0); // sets default borders for the window
     // now print all the menu items and highlight the first one
     for(int i = 0; i < list_len; i++){
@@ -113,44 +126,62 @@ void menu(){
         sprintf(item, "%-9s",  list[i]);
         mvwprintw(menuwin, i, 0, "%s", item);
     }
-    wrefresh(menuwin); // update the terminal screen
-    noecho(); // disable echoing of characters on the screen
-    keypad(menuwin, TRUE); // enable keyboard input for the window.
-    curs_set(0); // hide the default screen cursor.
-    // get the input
-    while((in_char = wgetch(menuwin)) != 'q'){ 
+    while(show_menu){
+
+        in_char = wgetch(menuwin); // get the input
+
         // right pad with spaces to make the items appear with even width.
-        sprintf(item, "%-9s",  list[choice]); 
-        mvwprintw(menuwin, choice, 0, "%s", item); 
-        // use a variable to increment or decrement the value based on the input.
+        sprintf(item, "%-9s",  list[highlight]); 
+        mvwprintw(menuwin, highlight, 0, "%s", item); 
+
         switch(in_char) {
             case KEY_UP:
             case 'k':
-                choice--;
-                choice = (choice < 0) ? list_len - 1 : choice;
+                highlight--;
+                highlight = (highlight < 0) ? list_len - 1 : highlight;
                 break;
             case KEY_DOWN:
             case 'j':
-                choice++;
-                choice = (choice > list_len -1) ? 0 : choice;
+                highlight++;
+                highlight = (highlight > list_len -1) ? 0 : highlight;
+                break;
+            case 'q':
+            case '\n':
+                show_menu = false;
+            default:
                 break;
         }
+
         // now highlight the next item in the list.
         wattron(menuwin, A_STANDOUT);
-        sprintf(item, "%-9s",  list[choice]);
-        mvwprintw(menuwin, choice, 0, "%s", item);
+        sprintf(item, "%-9s",  list[highlight]);
+        mvwprintw(menuwin, highlight, 0, "%s", item);
         wattroff(menuwin, A_STANDOUT);
     }
     delwin(menuwin);
+    return highlight;
+}
+
+void gameloop(){
+    update_field();
+    draw_board();
 }
 
 
 int main(int argc, char* argv[]){
-    initscr();
-    menu();
-    //set_board();
-    //update_field();
-    //print_board();
+    init();
+    int choice = 2;
+    choice = draw_menu();
+    switch(choice){
+        case 0:
+            set_board();
+            gameloop();
+            break;
+        case 1:
+            break; 
+        case 2:
+            break;
+    }
     endwin();
     return 0;
 }
