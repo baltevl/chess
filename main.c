@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <ncurses.h>
 
-#define ARRAYLEN(x) (sizeof(x) / sizeof((x)[0]))
+#define ARRAY_LEN(x) (sizeof(x) / sizeof((x)[0]))
 
 struct Piece{
     char piece; 
@@ -19,24 +19,30 @@ struct Board{
     char field[8][8];
     int x_focus;
     int y_focus;
+    bool white;
 } board;
 
+void init();
 
-void get_move();
+int draw_menu();
+
+void gameloop();
+
+void set_board();
+
+void draw_board(WINDOW *boardwin);
+
+void get_move(WINDOW *boardwin);
 
 void clear_field();
 
 void update_field();
 
-void draw_board();
+int get_next_piece(int direction,bool white);
 
-void set_board();
+bool is_upper_case(char piece);
 
-void gameloop();
 
-void init();
-
-int draw_menu();
 
 int main(int argc, char* argv[]){
     init();
@@ -56,51 +62,172 @@ int main(int argc, char* argv[]){
     return 0;
 }
 
+int get_next_piece(int direction, bool white){
+    // direction can either be k, j, h or l 
+    int position = -1;
+    switch(direction){
+        case 'k':
+            if(board.y_focus == 0)
+                break;
+            for(int i = board.y_focus - 1; i >= 0; i--){
+                if(board.field[i][board.x_focus] != ' ' && is_upper_case(board.field[i][board.x_focus]) == white){
+                    position = i;
+                    break;
+                }
+            }
+            break;
+
+        case 'j':
+            if(board.y_focus == 7)
+                break;
+            for(int i = board.y_focus + 1; i <= 7; i++){
+                if(board.field[i][board.x_focus] != ' ' && is_upper_case(board.field[i][board.x_focus]) == white){
+                    position = i;
+                    break;
+                }
+            }
+            break;
+
+        case 'h':
+            if(board.x_focus == 0)
+                break;
+            for(int i = board.x_focus - 1; i >= 0; i--){
+                if(board.field[board.y_focus][i] != ' ' && is_upper_case(board.field[board.y_focus][i]) == white){
+                    position = i;
+                    break;
+                }
+            }
+            break;
+
+        case 'l':
+            if(board.x_focus == 7)
+                break;
+            for(int i = board.x_focus + 1; i <= 7; i++){
+                if(board.field[board.y_focus][i] != ' ' && is_upper_case(board.field[board.y_focus][i]) == white){
+                    position = i;
+                    break;
+                }
+            }
+            break;
+
+        default:
+            break;
+    }
+    return position;
+}
+
+bool is_upper_case(char piece){
+    if( 64 < piece && piece < 91){
+        return true;
+    } else{
+        return false;
+    }
+}
+
 void get_move(WINDOW *boardwin){
     bool piece_choosen = false;
     bool move_choosen = false;
+    int x_piece, y_piece;
+    int x_move, y_move;
     int in_char = 0; 
-    
-    mvwprintw(boardwin, 0, 0, "%d%d%d", board.x_focus, board.y_focus, in_char);
+    int next_position = -1;    
+    //mvwprintw(boardwin, 0, 0, "%d%d%d", board.x_focus, board.y_focus, in_char);
     while(!piece_choosen){
         in_char = wgetch(boardwin);
         mvwprintw(boardwin, board.y_focus*2+2, board.x_focus*4 + 4, "%c", board.field[board.y_focus][board.x_focus]);
         switch(in_char){
             case KEY_UP:
             case 'k':
-                board.y_focus--;
-                board.y_focus = (board.y_focus < 0) ? 0 : board.y_focus;
+                //board.y_focus--;
+                //board.y_focus = (board.y_focus < 0) ? 0 : board.y_focus;
+                next_position = get_next_piece('k', board.white);
+                if(next_position != -1)
+                    board.y_focus = next_position;
                 break;
                 
             case KEY_DOWN:
             case 'j':
-                board.y_focus++;
-                board.y_focus = (board.y_focus > 7) ? 7 : board.y_focus;
+                //board.y_focus++;
+                //board.y_focus = (board.y_focus > 7) ? 7 : board.y_focus;
+                next_position = get_next_piece('j', board.white);
+                if(next_position != -1)
+                    board.y_focus = next_position;
                 break;
 
             case KEY_LEFT:
             case 'h':
-                board.x_focus--;
-                board.x_focus = (board.x_focus < 0) ? 0 : board.x_focus;
+                //board.x_focus--;
+                //board.x_focus = (board.x_focus < 0) ? 0 : board.x_focus;
+                next_position = get_next_piece('h', board.white);
+                if(next_position != -1)
+                    board.x_focus = next_position;
                 break;
 
             case KEY_RIGHT:
             case 'l':
-                board.x_focus++;
-                board.x_focus = (board.x_focus > 7) ? 7 : board.x_focus;
+                //board.x_focus++;
+                //board.x_focus = (board.x_focus > 7) ? 7 : board.x_focus;
+                next_position = get_next_piece('l', board.white);
+                if(next_position != -1)
+                    board.x_focus = next_position;
                 break;
 
             case 'q':
                 piece_choosen = true;
+                move_choosen = true;
+                break;
+            
+            case '\n':
+                if(board.field[board.y_focus][board.x_focus] != ' '){
+                    x_piece = board.x_focus;
+                    y_piece = board.y_focus;
+                    piece_choosen = true;
+                } 
+                break;
+
+            default:
+                mvwprintw(boardwin, 19, 0, "Use h,j,k,l or arrow keys to move and Enter to confirm");
+
+                break;
+        }
+//        mvwprintw(boardwin, 0, 0, "%d%d%c ", board.x_focus, board.y_focus, in_char);
+        wattron(boardwin, A_STANDOUT);
+        mvwprintw(boardwin, board.y_focus*2+2, board.x_focus*4 + 4, "%c", board.field[board.y_focus][board.x_focus]);
+        wattroff(boardwin, A_STANDOUT);
+    }
+
+    while(!move_choosen){
+        in_char = wgetch(boardwin);
+        
+        switch(in_char){
+            case KEY_UP:
+            case 'k':
+                break;
+
+            case KEY_DOWN:
+            case 'j':
+                break;
+
+            case KEY_LEFT:
+            case 'h':
+                break;
+
+            case KEY_RIGHT:
+            case 'l':
+                break;
+
+            case 'q':
+                piece_choosen = true;
+                move_choosen = true;
+                break;
+
+            case '\n':
+                move_choosen = true;
                 break;
 
             default:
                 break;
         }
-        mvwprintw(boardwin, 0, 0, "%d%d%d", board.x_focus, board.y_focus, in_char);
-        wattron(boardwin, A_STANDOUT);
-        mvwprintw(boardwin, board.y_focus*2+2, board.x_focus*4 + 4, "%c", board.field[board.y_focus][board.x_focus]);
-        wattroff(boardwin, A_STANDOUT);
     }
 }
 
@@ -114,7 +241,7 @@ void clear_field(){
 
 void update_field(){
     clear_field();
-    for (int i = 0; i < ARRAYLEN(board.pieces); i++){
+    for (int i = 0; i < ARRAY_LEN(board.pieces); i++){
         int file = board.pieces[i].file;
         int rank = board.pieces[i].rank;
         int offset = 32 * board.pieces[i].white;
@@ -122,7 +249,6 @@ void update_field(){
         board.field[rank][file] = board.pieces[i].piece - offset;
     }
 }
-
 
 void draw_board(WINDOW *boardwin){
     mvwprintw(boardwin, 0, 0, "%s", "    A   B   C   D   E   F   G   H  ");
@@ -185,7 +311,7 @@ void init(){
 int draw_menu(){
     int in_char = 0, highlight = 0; 
     char list[3][9] = {"New Game", "Settings", "Exit"};
-    size_t list_len = ARRAYLEN(list);
+    size_t list_len = ARRAY_LEN(list);
     char buffer[9];
     bool show_menu = true;
     int y_max, x_max;
