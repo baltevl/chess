@@ -134,8 +134,6 @@ bool is_upper_case(char piece){
 void get_move(WINDOW *boardwin){
     bool piece_choosen = false;
     bool move_choosen = false;
-    int x_piece, y_piece;
-    int x_move, y_move;
     int in_char = 0; 
     struct Position next_position;    
     next_position.x = -1;
