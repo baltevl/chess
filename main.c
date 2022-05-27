@@ -278,7 +278,6 @@ void draw_board(WINDOW *boardwin){
 
 void set_board(){
     char pieces_template[16] = {'k','d','t','t','l','l','s','s','b','b','b','b','b','b','b','b'};
-    int ranks_template[4] = {0,1,7,6};
     int files_template[16] = {4,3,0,7,2,5,1,6,0};
     for (int i = 0; i < 32; i++){
         //piece
