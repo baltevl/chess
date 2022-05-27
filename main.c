@@ -14,7 +14,7 @@ struct Piece{
     int rank; 
 };
 
-struct Board { 
+struct Board{ 
     struct Piece pieces[32];
     char field[8][8];
     int x_focus;
@@ -56,12 +56,52 @@ int main(int argc, char* argv[]){
     return 0;
 }
 
-void get_move(){
-    char piece_input[20], move_input[20];
-    printf("Enter piece you want to move: ");
-    do {
-        scanf("%s", &piece_input);
-    } while (piece_input);
+void get_move(WINDOW *boardwin){
+    bool piece_choosen = false;
+    bool move_choosen = false;
+    int in_char = 0; 
+    
+    mvwprintw(boardwin, 0, 0, "%d%d%d", board.x_focus, board.y_focus, in_char);
+    while(!piece_choosen){
+        in_char = wgetch(boardwin);
+        mvwprintw(boardwin, board.y_focus*2+2, board.x_focus*4 + 4, "%c", board.field[board.y_focus][board.x_focus]);
+        switch(in_char){
+            case KEY_UP:
+            case 'k':
+                board.y_focus--;
+                board.y_focus = (board.y_focus < 0) ? 0 : board.y_focus;
+                break;
+                
+            case KEY_DOWN:
+            case 'j':
+                board.y_focus++;
+                board.y_focus = (board.y_focus > 7) ? 7 : board.y_focus;
+                break;
+
+            case KEY_LEFT:
+            case 'h':
+                board.x_focus--;
+                board.x_focus = (board.x_focus < 0) ? 0 : board.x_focus;
+                break;
+
+            case KEY_RIGHT:
+            case 'l':
+                board.x_focus++;
+                board.x_focus = (board.x_focus > 7) ? 7 : board.x_focus;
+                break;
+
+            case 'q':
+                piece_choosen = true;
+                break;
+
+            default:
+                break;
+        }
+        mvwprintw(boardwin, 0, 0, "%d%d%d", board.x_focus, board.y_focus, in_char);
+        wattron(boardwin, A_STANDOUT);
+        mvwprintw(boardwin, board.y_focus*2+2, board.x_focus*4 + 4, "%c", board.field[board.y_focus][board.x_focus]);
+        wattroff(boardwin, A_STANDOUT);
+    }
 }
 
 void clear_field(){
@@ -91,7 +131,7 @@ void draw_board(WINDOW *boardwin){
         mvwprintw(boardwin, ranks_count*2+2, 0, "%d |", ranks_count+1);
         for (int files_count = 0; files_count < 8; files_count++){
             mvwprintw(boardwin, ranks_count*2+2, files_count*4 + 3, " ");
-            if(ranks_count == board.x_focus && files_count == board.y_focus)
+            if(ranks_count == board.y_focus && files_count == board.x_focus)
                 wattron(boardwin, A_STANDOUT);
             mvwprintw(boardwin, ranks_count*2+2, files_count*4 + 4, "%c", board.field[ranks_count][files_count]);
             wattroff(boardwin, A_STANDOUT);
@@ -99,8 +139,6 @@ void draw_board(WINDOW *boardwin){
         }
     }
     mvwprintw(boardwin, 17, 0, "  +---+---+---+---+---+---+---+---+");
-    
-    wgetch(boardwin);
 }
 
 void set_board(){
@@ -145,7 +183,7 @@ void init(){
 }
 
 int draw_menu(){
-    int in_char, highlight = 0; 
+    int in_char = 0, highlight = 0; 
     char list[3][9] = {"New Game", "Settings", "Exit"};
     size_t list_len = ARRAYLEN(list);
     char buffer[9];
@@ -186,10 +224,10 @@ int draw_menu(){
                 highlight = (highlight > list_len - 1) ? 0 : highlight;
                 break;
             case 'q':
-                show_menu = false;
                 highlight = list_len - 1;
             case '\n':
                 show_menu = false;
+                break;
             default:
                 break;
         }
@@ -207,7 +245,7 @@ int draw_menu(){
 void gameloop(){
     bool game_running = true;
     int y_max, x_max;
-    board.x_focus, board.y_focus = 0;
+    board.x_focus = board.y_focus = 0;
     getmaxyx(stdscr, y_max, x_max);
     
     WINDOW *boardwin;    
@@ -218,6 +256,8 @@ void gameloop(){
     while(game_running){
         update_field();
         draw_board(boardwin);
+        get_move(boardwin);
+        game_running = false;
     }
     delwin(boardwin);
 }
