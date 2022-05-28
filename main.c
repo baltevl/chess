@@ -136,8 +136,9 @@ void get_move(WINDOW *boardwin){
     bool move_choosen = false;
     int in_char = 0; 
     struct Position next_position;    
-    next_position.x = -1;
-    next_position.y = -1;
+    next_position.x = -1, next_position.y = -1;
+    struct Position piece;
+    piece.x = -1, piece.y = -1;
     //mvwprintw(boardwin, 0, 0, "%d%d%d", board.focus.x, board.focus.y, in_char);
     while(!piece_choosen){
         in_char = wgetch(boardwin);
@@ -186,9 +187,10 @@ void get_move(WINDOW *boardwin){
             
             case '\n':
                 if(board.field[board.focus.y][board.focus.x] != ' '){
-                    x_piece = board.focus.x;
-                    y_piece = board.focus.y;
+                    piece = board.focus;
                     piece_choosen = true;
+                    mvwprintw(boardwin, 20, 0, "DEBUG:%d %d", piece.x, piece.y);
+                    mvwprintw(boardwin, 19, 0, "%-54s", "");
                 } 
                 break;
 
@@ -239,9 +241,9 @@ void get_move(WINDOW *boardwin){
 }
 
 void clear_field(){
-    for (int ranks_count = 0;  ranks_count < 8; ranks_count++){
-        for (int files_count = 0;  files_count < 8; files_count ++){
-            board.field[ranks_count][files_count] = 32; // SPACE is ASCII 32
+    for (int count_y = 0;  count_y < 8; count_y++){
+        for (int count_x = 0;  count_x < 8; count_x ++){
+            board.field[count_y][count_x] = 32; // SPACE is ASCII 32
         }
     }
 }
@@ -249,26 +251,26 @@ void clear_field(){
 void update_field(){
     clear_field();
     for (int i = 0; i < ARRAY_LEN(board.pieces); i++){
-        int file = board.pieces[i].position.x;
-        int rank = board.pieces[i].position.y;
+        int x = board.pieces[i].position.x;
+        int y = board.pieces[i].position.y;
         int offset = 32 * board.pieces[i].white;
         //printf("%c",board.pieces[i].piece - offset);
-        board.field[rank][file] = board.pieces[i].piece - offset;
+        board.field[y][x] = board.pieces[i].piece - offset;
     }
 }
 
 void draw_board(WINDOW *boardwin){
     mvwprintw(boardwin, 0, 0, "%s", "    A   B   C   D   E   F   G   H  ");
-    for (int ranks_count = 0; ranks_count < 8; ranks_count++){
-        mvwprintw(boardwin, ranks_count*2+1, 0, "%s", "  +---+---+---+---+---+---+---+---+");
-        mvwprintw(boardwin, ranks_count*2+2, 0, "%d |", ranks_count+1);
-        for (int files_count = 0; files_count < 8; files_count++){
-            mvwprintw(boardwin, ranks_count*2+2, files_count*4 + 3, " ");
-            if(ranks_count == board.focus.y && files_count == board.focus.x)
+    for (int count_y = 0; count_y < 8; count_y++){
+        mvwprintw(boardwin, count_y*2+1, 0, "%s", "  +---+---+---+---+---+---+---+---+");
+        mvwprintw(boardwin, count_y*2+2, 0, "%d |", count_y+1);
+        for (int count_x = 0; count_x < 8; count_x++){
+            mvwprintw(boardwin, count_y*2+2, count_x*4 + 3, " ");
+            if(count_y == board.focus.y && count_x == board.focus.x)
                 wattron(boardwin, A_STANDOUT);
-            mvwprintw(boardwin, ranks_count*2+2, files_count*4 + 4, "%c", board.field[ranks_count][files_count]);
+            mvwprintw(boardwin, count_y*2+2, count_x*4 + 4, "%c", board.field[count_y][count_x]);
             wattroff(boardwin, A_STANDOUT);
-            mvwprintw(boardwin, ranks_count*2+2, files_count*4 + 5, " |");
+            mvwprintw(boardwin, count_y*2+2, count_x*4 + 5, " |");
         }
     }
     mvwprintw(boardwin, 17, 0, "  +---+---+---+---+---+---+---+---+");
