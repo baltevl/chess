@@ -69,27 +69,30 @@ int main(int argc, char* argv[]){
 
 struct Position get_next_piece(int direction, bool white){
     // direction can either be k, j, h or l 
+    bool piece_found = false;
     struct Position position;
-        position.x = -1;
-        position.y = -1;
+    position.x = -1, position.y = -1;
+
     switch(direction){
         case 'k':
             if(board.focus.y == 0)
                 break;
-            for(int i = board.focus.y - 1; i >= 0; i--){
-                if(board.field[i][board.focus.x] != ' ' && is_upper_case(board.field[i][board.focus.x]) == white){
-                    position.y = i;
-                    break;
+            do{
+                for(int count_y = board.focus.y - 1; count_y >= 0; count_y--){
+                    if(board.field[count_y][board.focus.x] != ' ' && is_upper_case(board.field[count_y][board.focus.x]) == white){
+                        position.y = count_y;
+                        break;
+                    }
                 }
-            }
+            } while(!piece_found);
             break;
 
         case 'j':
             if(board.focus.y == 7)
                 break;
-            for(int i = board.focus.y + 1; i <= 7; i++){
-                if(board.field[i][board.focus.x] != ' ' && is_upper_case(board.field[i][board.focus.x]) == white){
-                    position.y = i;
+            for(int count_y = board.focus.y + 1; count_y <= 7; count_y++){
+                if(board.field[count_y][board.focus.x] != ' ' && is_upper_case(board.field[count_y][board.focus.x]) == white){
+                    position.y = count_y;
                     break;
                 }
             }
@@ -98,9 +101,9 @@ struct Position get_next_piece(int direction, bool white){
         case 'h':
             if(board.focus.x == 0)
                 break;
-            for(int i = board.focus.x - 1; i >= 0; i--){
-                if(board.field[board.focus.y][i] != ' ' && is_upper_case(board.field[board.focus.y][i]) == white){
-                    position.x = i;
+            for(int count_x = board.focus.x - 1; count_x >= 0; count_x--){
+                if(board.field[board.focus.y][count_x] != ' ' && is_upper_case(board.field[board.focus.y][count_x]) == white){
+                    position.x = count_x;
                     break;
                 }
             }
@@ -109,9 +112,9 @@ struct Position get_next_piece(int direction, bool white){
         case 'l':
             if(board.focus.x == 7)
                 break;
-            for(int i = board.focus.x + 1; i <= 7; i++){
-                if(board.field[board.focus.y][i] != ' ' && is_upper_case(board.field[board.focus.y][i]) == white){
-                    position.x = i;
+            for(int count_x = board.focus.x + 1; count_x <= 7; count_x++){
+                if(board.field[board.focus.y][count_x] != ' ' && is_upper_case(board.field[board.focus.y][count_x]) == white){
+                    position.x = count_x;
                     break;
                 }
             }
@@ -189,8 +192,8 @@ void get_move(WINDOW *boardwin){
                 if(board.field[board.focus.y][board.focus.x] != ' '){
                     piece = board.focus;
                     piece_choosen = true;
-                    mvwprintw(boardwin, 20, 0, "DEBUG:%d %d", piece.x, piece.y);
                     mvwprintw(boardwin, 19, 0, "%-54s", "");
+                    mvwprintw(boardwin, 20, 0, "DEBUG:%d %d", piece.x, piece.y);
                 } 
                 break;
 
