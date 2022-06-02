@@ -1,51 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
 #include <ncurses.h>
 
-#define ARRAY_LEN(x) (sizeof(x) / sizeof((x)[0]))
+#include "main.h"
+#include "menu.h"
 
-struct Position{
-    int x;
-    int y;
-}; 
-
-struct Piece{
-    char piece; 
-    bool white;
-    int rank; 
-    struct Position position;
-};
-
-struct Board{ 
-    struct Piece pieces[32];
-    char field[8][8];
-    struct Position focus;
-    bool white;
-} board;
-
-
-void init();
-
-int draw_menu();
-
-void gameloop();
-
-void set_board();
-
-void draw_board(WINDOW *boardwin);
-
-void get_move(WINDOW *boardwin);
-
-void clear_field();
-
-void update_field();
-
-struct Position get_piece();
-
-bool is_upper_case(char piece);
 
 int main(int argc, char* argv[]){
     init();
@@ -137,7 +98,7 @@ void get_move(WINDOW *boardwin){
     int in_char = 0; 
     //mvwprintw(boardwin, 0, 0, "%d%d%d", board.focus.x, board.focus.y, in_char);
 
-    piece = get_piece(boardwin);
+    //piece = get_piece(boardwin);
 
     while(!move_choosen){
         in_char = wgetch(boardwin);
@@ -247,66 +208,6 @@ void init(){
     curs_set(0); // hide the default screen cursor.
     cbreak();
     
-}
-
-int draw_menu(){
-    int in_char = 0, highlight = 0; 
-    char list[3][9] = {"New Game", "Settings", "Exit"};
-    size_t list_len = ARRAY_LEN(list);
-    char buffer[9];
-    bool show_menu = true;
-    int y_max, x_max;
-    getmaxyx(stdscr, y_max, x_max);
-
-    WINDOW *menuwin;
-    menuwin = newwin(y_max, x_max, 0, 0); // create a new window
-    keypad(menuwin, true); // enable keyboard input for the window.
-    wrefresh(menuwin); // update the terminal screen
-    
-    // now print all the menu items and highlight the first one
-    for(int i = 0; i < list_len; i++){
-        if(i == 0) 
-            wattron(menuwin, A_STANDOUT); // highlights the first item.
-        sprintf(buffer, "%-9s",  list[i]);
-        mvwprintw(menuwin, i, 0, "%s", buffer);
-        wattroff(menuwin, A_STANDOUT);
-    }
-    while(show_menu){
-
-        in_char = wgetch(menuwin); // get the input
-
-        // right pad with spaces to make the items appear with even width.
-        sprintf(buffer, "%-9s",  list[highlight]); 
-        mvwprintw(menuwin, highlight, 0, "%s", buffer); 
-
-        switch(in_char) {
-            case KEY_UP:
-            case 'k':
-                highlight--;
-                highlight = (highlight < 0) ? list_len - 1 : highlight;
-                break;
-            case KEY_DOWN:
-            case 'j':
-                highlight++;
-                highlight = (highlight > list_len - 1) ? 0 : highlight;
-                break;
-            case 'q':
-                highlight = list_len - 1;
-            case '\n':
-                show_menu = false;
-                break;
-            default:
-                break;
-        }
-
-        // now highlight the next item in the list.
-        wattron(menuwin, A_STANDOUT);
-        sprintf(buffer, "%-9s",  list[highlight]);
-        mvwprintw(menuwin, highlight, 0, "%s", buffer);
-        wattroff(menuwin, A_STANDOUT);
-    }
-    delwin(menuwin);
-    return highlight;
 }
 
 void gameloop(){
