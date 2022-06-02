@@ -67,65 +67,6 @@ int main(int argc, char* argv[]){
     return 0;
 }
 
-struct Position get_next_piece(int direction, bool white){
-    // direction can either be k, j, h or l 
-    bool piece_found = false;
-    struct Position position;
-    position.x = -1, position.y = -1;
-
-    switch(direction){
-        case 'k':
-            if(board.focus.y == 0)
-                break;
-            do{
-                for(int count_y = board.focus.y - 1; count_y >= 0; count_y--){
-                    if(board.field[count_y][board.focus.x] != ' ' && is_upper_case(board.field[count_y][board.focus.x]) == white){
-                        position.y = count_y;
-                        break;
-                    }
-                }
-            } while(!piece_found);
-            break;
-
-        case 'j':
-            if(board.focus.y == 7)
-                break;
-            for(int count_y = board.focus.y + 1; count_y <= 7; count_y++){
-                if(board.field[count_y][board.focus.x] != ' ' && is_upper_case(board.field[count_y][board.focus.x]) == white){
-                    position.y = count_y;
-                    break;
-                }
-            }
-            break;
-
-        case 'h':
-            if(board.focus.x == 0)
-                break;
-            for(int count_x = board.focus.x - 1; count_x >= 0; count_x--){
-                if(board.field[board.focus.y][count_x] != ' ' && is_upper_case(board.field[board.focus.y][count_x]) == white){
-                    position.x = count_x;
-                    break;
-                }
-            }
-            break;
-
-        case 'l':
-            if(board.focus.x == 7)
-                break;
-            for(int count_x = board.focus.x + 1; count_x <= 7; count_x++){
-                if(board.field[board.focus.y][count_x] != ' ' && is_upper_case(board.field[board.focus.y][count_x]) == white){
-                    position.x = count_x;
-                    break;
-                }
-            }
-            break;
-
-        default:
-            break;
-    }
-    return position;
-}
-
 bool is_upper_case(char piece){
     if( 64 < piece && piece < 91){
         return true;
@@ -138,7 +79,6 @@ void get_move(WINDOW *boardwin){
     bool piece_choosen = false;
     bool move_choosen = false;
     int in_char = 0; 
-    struct Position next_position;    
     next_position.x = -1, next_position.y = -1;
     struct Position piece;
     piece.x = -1, piece.y = -1;
@@ -149,38 +89,26 @@ void get_move(WINDOW *boardwin){
         switch(in_char){
             case KEY_UP:
             case 'k':
-                //board.focus.y--;
-                //board.focus.y = (board.focus.y < 0) ? 0 : board.focus.y;
-                next_position = get_next_piece('k', board.white);
-                if(next_position.y != -1)
-                    board.focus.y = next_position.y;
+                board.focus.y--;
+                board.focus.y = (board.focus.y < 0) ? 0 : board.focus.y;
                 break;
                 
             case KEY_DOWN:
             case 'j':
-                //board.focus.y++;
-                //board.focus.y = (board.focus.y > 7) ? 7 : board.focus.y;
-                next_position = get_next_piece('j', board.white);
-                if(next_position.y != -1)
-                    board.focus.y = next_position.y;
+                board.focus.y++;
+                board.focus.y = (board.focus.y > 7) ? 7 : board.focus.y;
                 break;
 
             case KEY_LEFT:
             case 'h':
-                //board.focus.x--;
-                //board.focus.x = (board.focus.x < 0) ? 0 : board.focus.x;
-                next_position = get_next_piece('h', board.white);
-                if(next_position.x != -1)
-                    board.focus.x = next_position.x;
+                board.focus.x--;
+                board.focus.x = (board.focus.x < 0) ? 0 : board.focus.x;
                 break;
 
             case KEY_RIGHT:
             case 'l':
-                //board.focus.x++;
-                //board.focus.x = (board.focus.x > 7) ? 7 : board.focus.x;
-                next_position = get_next_piece('l', board.white);
-                if(next_position.x != -1)
-                    board.focus.x = next_position.x;
+                board.focus.x++;
+                board.focus.x = (board.focus.x > 7) ? 7 : board.focus.x;
                 break;
 
             case 'q':
