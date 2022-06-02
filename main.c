@@ -43,11 +43,9 @@ void clear_field();
 
 void update_field();
 
-struct Position get_next_piece(int direction,bool white);
+struct Position get_piece();
 
 bool is_upper_case(char piece);
-
-
 
 int main(int argc, char* argv[]){
     init();
@@ -75,14 +73,11 @@ bool is_upper_case(char piece){
     }
 }
 
-void get_move(WINDOW *boardwin){
+struct Position get_piece(WINDOW *boardwin){
     bool piece_choosen = false;
-    bool move_choosen = false;
     int in_char = 0; 
-    next_position.x = -1, next_position.y = -1;
     struct Position piece;
-    piece.x = -1, piece.y = -1;
-    //mvwprintw(boardwin, 0, 0, "%d%d%d", board.focus.x, board.focus.y, in_char);
+    
     while(!piece_choosen){
         in_char = wgetch(boardwin);
         mvwprintw(boardwin, board.focus.y*2+2, board.focus.x*4 + 4, "%c", board.field[board.focus.y][board.focus.x]);
@@ -113,7 +108,6 @@ void get_move(WINDOW *boardwin){
 
             case 'q':
                 piece_choosen = true;
-                move_choosen = true;
                 break;
             
             case '\n':
@@ -135,6 +129,15 @@ void get_move(WINDOW *boardwin){
         mvwprintw(boardwin, board.focus.y*2+2, board.focus.x*4 + 4, "%c", board.field[board.focus.y][board.focus.x]);
         wattroff(boardwin, A_STANDOUT);
     }
+    return piece;
+}
+
+void get_move(WINDOW *boardwin){
+    bool move_choosen = false;
+    int in_char = 0; 
+    //mvwprintw(boardwin, 0, 0, "%d%d%d", board.focus.x, board.focus.y, in_char);
+
+    piece = get_piece(boardwin);
 
     while(!move_choosen){
         in_char = wgetch(boardwin);
@@ -157,7 +160,6 @@ void get_move(WINDOW *boardwin){
                 break;
 
             case 'q':
-                piece_choosen = true;
                 move_choosen = true;
                 break;
 
