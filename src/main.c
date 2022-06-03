@@ -11,7 +11,7 @@ int main(int argc, char* argv[]){
     printf("Hello World");
     init();
     int choice = 2;
-    choice = draw_menu();
+    choice = menu();
     switch(choice){
         case 0:
             set_board();
