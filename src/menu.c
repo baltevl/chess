@@ -2,9 +2,10 @@
 #include <ctype.h>
 #include <ncurses.h>
 
+#include "main.h"
 #include "menu.h"
 
-int draw_menu(){
+int menu(){
     int in_char = 0, highlight = 0; 
     char list[3][9] = {"New Game", "Settings", "Exit"};
     size_t list_len = ARRAY_LEN(list);

@@ -1,1 +1,1 @@
-int draw_menu();
+int menu();
