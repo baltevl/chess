@@ -16,34 +16,34 @@ struct Position get_piece(WINDOW *boardwin){
         switch(in_char){
             case KEY_UP:
             case 'k':
-                board.focus.y--;
-                board.focus.y = (board.focus.y < 0) ? 0 : board.focus.y;
+                //board.focus.y--;
+                //board.focus.y = (board.focus.y < 0) ? 0 : board.focus.y;
+                MOVE_CURSOR(board.focus.y,--,<,0)
                 break;
                 
             case KEY_DOWN:
             case 'j':
-                board.focus.y++;
-                board.focus.y = (board.focus.y > 7) ? 7 : board.focus.y;
+                //board.focus.y++;
+                //board.focus.y = (board.focus.y > 7) ? 7 : board.focus.y;
+                MOVE_CURSOR(board.focus.y,++,>,7)
                 break;
 
             case KEY_LEFT:
             case 'h':
-                board.focus.x--;
-                board.focus.x = (board.focus.x < 0) ? 0 : board.focus.x;
+                //board.focus.x--;
+                //board.focus.x = (board.focus.x < 0) ? 0 : board.focus.x;
+                MOVE_CURSOR(board.focus.x,--,<,0)
                 break;
 
             case KEY_RIGHT:
             case 'l':
-                board.focus.x++;
-                board.focus.x = (board.focus.x > 7) ? 7 : board.focus.x;
+                //board.focus.x++;
+                //board.focus.x = (board.focus.x > 7) ? 7 : board.focus.x;
+                MOVE_CURSOR(board.focus.x,++,>,7)
                 break;
 
-            case 'q':
-                piece_choosen = true;
-                break;
-            
             case '\n':
-                if(board.field[board.focus.y][board.focus.x] != ' '){
+                if(board.field[board.focus.y][board.focus.x] != ' ' && is_upper_case(board.field[board.focus.y][board.focus.x]) == board.white){
                     piece = board.focus;
                     piece_choosen = true;
                     mvwprintw(boardwin, 19, 0, "%-54s", "");
@@ -67,9 +67,10 @@ struct Position get_piece(WINDOW *boardwin){
 void get_move(WINDOW *boardwin){
     bool move_choosen = false;
     int in_char = 0; 
+    struct Position piece;
     //mvwprintw(boardwin, 0, 0, "%d%d%d", board.focus.x, board.focus.y, in_char);
 
-    //piece = get_piece(boardwin);
+    piece = get_piece(boardwin);
 
     while(!move_choosen){
         in_char = wgetch(boardwin);

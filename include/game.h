@@ -1,3 +1,5 @@
+#define MOVE_CURSOR(x,y,a,z) { x y; x = (x a z) ? z : x; }
+
 struct Position{
     int x;
     int y;
