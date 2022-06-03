@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <ncurses.h>
 
-#include "game.h"
 #include "main.h"
+#include "game.h"
 
 struct Position get_piece(WINDOW *boardwin){
     bool piece_choosen = false;
