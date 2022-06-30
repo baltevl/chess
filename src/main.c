@@ -1,43 +1,35 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <ncurses.h>
 
-#include "main.h"
 #include "menu.h"
 #include "game.h"
 
-
-int main(int argc, char* argv[]){
-    printf("Hello World");
-    init();
-    int choice = 2;
-    choice = menu();
-    switch(choice){
-        case 0:
-            set_board();
-            gameloop();
-            break;
-        case 1:
-            break; 
-        case 2:
-            break;
-    }
-    endwin();
-    return 0;
-}
-
-bool is_upper_case(char piece){
-    if( 64 < piece && piece < 91){
-        return true;
-    } else{
-        return false;
-    }
-}
-
-void init(){
+void ncurses_init(){
     initscr();
     noecho(); // disable echoing of characters on the screen
     curs_set(0); // hide the default screen cursor.
     cbreak();
     
 }
+
+int main(int argc, char* argv[]){
+    ncurses_init();
+    bool exit = false;
+    int choice = 2;
+    while(!exit){
+        choice = menu();
+        switch(choice){
+            case 0:
+                game();
+                break;
+            case 1:
+                break; 
+            case 2:
+                exit = true;
+                break;
+       }
+    }
+    endwin();
+    return 0;
+}
+
+

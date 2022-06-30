@@ -10,25 +10,27 @@ OBJ=$(BUILD)/obj
 
 SOURCE_FILES=\
 			 menu.c\
+			 game_ui.c\
 			 game.c\
+			 board.c\
+			 piece.c\
 			 main.c
 
 EXECUTABLE_FILES = $(EXECUTABLE_NAME:%=$(BUILD)/%)
 OBJECT_FILES     = $(SOURCE_FILES:%.c=$(OBJ)/%.o)
 
 build: $(EXECUTABLE_FILES)
-	@echo "Binary written to $(EXECUTABLE_FILES)"
 
 clean:
 	rm -rf $(BUILD)
 
 run: build
-	$(EXECUTABLE_FILES)
+	./$(EXECUTABLE_FILES)
 
 .PHON: build clean run
 
 $(EXECUTABLE_FILES): $(OBJECT_FILES)
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CC) $(LDFLAGS) -o $@ $^ 
 
 $(OBJECT_FILES): $(OBJ)/%.o: $(SRC)/%.c
 	mkdir -p $(@D)
